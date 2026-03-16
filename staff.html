@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POLARIS — スタッフ入場管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Syne+Mono&family=Syne:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black: #050508; --cyan: #00f0ff; --magenta: #ff0080;
+  --green: #00ff88; --red: #ff3355; --white: #f0eeff; --dim: rgba(240,238,255,.5);
+}
+body { background: var(--black); color: var(--white); font-family: 'Syne', sans-serif; min-height: 100vh; }
+
+/* ── Login ── */
+#loginScreen {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 2rem;
+}
+#loginScreen h1 {
+  font-family: 'Big Shoulders Display', sans-serif; font-weight: 900;
+  font-size: 2.5rem; color: var(--cyan); text-shadow: 0 0 20px var(--cyan);
+  letter-spacing: .1em; margin-bottom: .5rem;
+}
+#loginScreen p { color: var(--dim); font-size: .85rem; margin-bottom: 2rem; font-family: 'Syne Mono', monospace; letter-spacing: .1em; }
+.login-input {
+  width: 100%; max-width: 320px; background: rgba(255,255,255,.04);
+  border: 1px solid rgba(0,240,255,.3); padding: .9rem 1rem;
+  font-family: 'Syne', sans-serif; font-size: 1rem; color: var(--white);
+  outline: none; margin-bottom: 1rem;
+}
+.login-input:focus { border-color: var(--cyan); box-shadow: 0 0 16px rgba(0,240,255,.15); }
+.btn {
+  display: block; width: 100%; max-width: 320px; padding: .9rem;
+  background: var(--cyan); color: var(--black); border: none;
+  font-family: 'Big Shoulders Display', sans-serif; font-weight: 900;
+  font-size: 1.1rem; letter-spacing: .15em; cursor: pointer;
+  transition: background .2s, box-shadow .2s;
+}
+.btn:hover { background: var(--magenta); box-shadow: 0 0 24px rgba(255,0,128,.4); }
+.btn.green { background: var(--green); }
+.btn.green:hover { background: #00cc6a; box-shadow: 0 0 24px rgba(0,255,136,.4); }
+.btn.red-btn { background: var(--red); }
+.btn.small { font-size: .85rem; padding: .6rem 1rem; width: auto; max-width: none; display: inline-block; }
+
+/* ── App Layout ── */
+#app { display: none; }
+header {
+  background: rgba(5,5,8,.95); border-bottom: 1px solid rgba(0,240,255,.15);
+  padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-logo { font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 1.3rem; color: var(--cyan); letter-spacing: .1em; }
+.header-stats { display: flex; gap: 1.5rem; font-family: 'Syne Mono', monospace; font-size: .75rem; }
+.stat { text-align: center; }
+.stat .num { font-size: 1.4rem; font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; }
+.stat .num.cyan { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+.stat .num.green { color: var(--green); text-shadow: 0 0 10px var(--green); }
+.stat .lbl { color: var(--dim); font-size: .6rem; letter-spacing: .15em; text-transform: uppercase; }
+
+/* ── Tabs ── */
+.tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.07); }
+.tab {
+  flex: 1; padding: .9rem; text-align: center;
+  font-family: 'Syne Mono', monospace; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dim); cursor: pointer; border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+.tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* ── Scanner Tab ── */
+#scannerTab { padding: 1.5rem; }
+.scanner-wrap {
+  position: relative; width: 100%; max-width: 360px; margin: 0 auto 1.5rem;
+  border: 2px solid rgba(0,240,255,.3); background: #000; border-radius: 2px;
+}
+#videoEl { width: 100%; display: block; }
+.scan-overlay {
+  position: absolute; inset: 0; pointer-events: none;
+  border: 3px solid var(--cyan); box-shadow: inset 0 0 30px rgba(0,240,255,.15);
+  animation: scanPulse 2s ease-in-out infinite;
+}
+.scan-line {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(to right, transparent, var(--cyan), transparent);
+  animation: scanLine 2s ease-in-out infinite;
+}
+@keyframes scanPulse { 0%,100%{opacity:.5;} 50%{opacity:1;} }
+@keyframes scanLine { 0%{top:0;} 100%{top:100%;} }
+.scanner-status {
+  text-align: center; font-family: 'Syne Mono', monospace; font-size: .8rem;
+  color: var(--dim); margin-bottom: 1rem; letter-spacing: .1em;
+}
+.scan-btn-wrap { text-align: center; }
+
+/* ── Result Card ── */
+.result-card {
+  display: none; max-width: 360px; margin: 1rem auto 0;
+  border: 1px solid rgba(0,240,255,.3); padding: 1.5rem;
+  background: rgba(0,240,255,.04);
+}
+.result-card.admitted { border-color: var(--red); background: rgba(255,51,85,.06); }
+.result-card.success { border-color: var(--green); background: rgba(0,255,136,.06); }
+.result-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+}
+.result-badge {
+  font-family: 'Syne Mono', monospace; font-size: .65rem; letter-spacing: .2em;
+  text-transform: uppercase; padding: .3rem .8rem; border: 1px solid;
+}
+.result-badge.ok { color: var(--green); border-color: var(--green); background: rgba(0,255,136,.1); }
+.result-badge.ng { color: var(--red); border-color: var(--red); background: rgba(255,51,85,.1); }
+.result-name { font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 2rem; margin-bottom: .3rem; }
+.result-meta { font-family: 'Syne Mono', monospace; font-size: .75rem; color: var(--dim); }
+.result-meta span { display: block; margin-bottom: .2rem; }
+.result-actions { margin-top: 1.2rem; display: flex; gap: .8rem; }
+
+/* ── List Tab ── */
+#listTab { padding: 1rem 1.5rem; }
+.search-bar {
+  width: 100%; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+  border-bottom-color: rgba(0,240,255,.3); padding: .8rem 1rem;
+  font-family: 'Syne', sans-serif; font-size: .9rem; color: var(--white);
+  outline: none; margin-bottom: 1rem;
+}
+.search-bar:focus { border-color: var(--cyan); }
+.search-bar::placeholder { color: rgba(240,238,255,.2); }
+.attendee-list { display: flex; flex-direction: column; gap: .5rem; }
+.attendee-item {
+  display: flex; align-items: center; gap: 1rem; padding: .8rem 1rem;
+  border: 1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.02);
+  transition: border-color .2s;
+}
+.attendee-item.admitted { border-color: rgba(0,255,136,.3); background: rgba(0,255,136,.03); }
+.attendee-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--dim);
+}
+.attendee-item.admitted .attendee-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.attendee-info { flex: 1; min-width: 0; }
+.attendee-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .9rem; }
+.attendee-sub { font-family: 'Syne Mono', monospace; font-size: .65rem; color: var(--dim); margin-top: .2rem; }
+.attendee-status {
+  font-family: 'Syne Mono', monospace; font-size: .65rem; letter-spacing: .1em;
+  flex-shrink: 0;
+}
+.attendee-item.admitted .attendee-status { color: var(--green); }
+
+.empty-state { text-align: center; padding: 3rem; color: var(--dim); font-family: 'Syne Mono', monospace; font-size: .8rem; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--green); color: var(--black); padding: .8rem 1.5rem;
+  font-family: 'Syne Mono', monospace; font-size: .8rem; font-weight: 700;
+  letter-spacing: .1em; transition: transform .3s; z-index: 999; white-space: nowrap;
+}
+.toast.error { background: var(--red); color: var(--white); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="loginScreen">
+  <h1>/ POLARIS</h1>
+  <p>STAFF ACCESS — 入場管理システム</p>
+  <input class="login-input" type="password" id="passInput" placeholder="スタッフパスワード" autocomplete="current-password">
+  <button class="btn" onclick="doLogin()">ログイン</button>
+</div>
+
+<!-- ── App ── -->
+<div id="app">
+  <header>
+    <div class="header-logo">/ POLARIS STAFF</div>
+    <div class="header-stats">
+      <div class="stat">
+        <div class="num cyan" id="totalCount">0</div>
+        <div class="lbl">総購入者</div>
+      </div>
+      <div class="stat">
+        <div class="num green" id="admittedCount">0</div>
+        <div class="lbl">入場済み</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('scanner')">QRスキャン</div>
+    <div class="tab" onclick="switchTab('list')">参加者リスト</div>
+  </div>
+
+  <!-- Scanner Tab -->
+  <div id="scannerTab">
+    <div class="scanner-wrap">
+      <video id="videoEl" playsinline muted></video>
+      <div class="scan-overlay"><div class="scan-line"></div></div>
+    </div>
+    <div class="scanner-status" id="scannerStatus">カメラを起動中...</div>
+    <div class="scan-btn-wrap">
+      <button class="btn small" onclick="toggleCamera()" id="camBtn">カメラ停止</button>
+    </div>
+
+    <!-- Result -->
+    <div class="result-card" id="resultCard">
+      <div class="result-header">
+        <div class="result-name" id="resultName">—</div>
+        <div class="result-badge" id="resultBadge">—</div>
+      </div>
+      <div class="result-meta">
+        <span id="resultId"></span>
+        <span id="resultEmail"></span>
+        <span id="resultPayment"></span>
+        <span id="resultDatetime"></span>
+      </div>
+      <div class="result-actions" id="resultActions"></div>
+    </div>
+  </div>
+
+  <!-- List Tab -->
+  <div id="listTab" style="display:none;">
+    <input class="search-bar" type="text" id="searchInput" placeholder="名前・メールで検索..." oninput="renderList()">
+    <div class="attendee-list" id="attendeeList">
+      <div class="empty-state">データを読み込み中...</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ 設定 ══
+const STAFF_PASSWORD = 'polaris2026'; // ← 変更してください
+let APPS_SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbxeDaqo3bMBkOF7RUnu26uiV25RZK-2eqpbwyJSl9s3gqIY7xFbBrbMHoPhpWnmUOZ4qw/exec';
+let attendees = [];
+let scanning  = true;
+let videoStream = null;
+let scanInterval = null;
+let lastScanned  = '';
+let lastScannedTime = 0;
+
+// ══ ログイン ══
+function doLogin() {
+  const pass = document.getElementById('passInput').value;
+  if (pass !== STAFF_PASSWORD) { showToast('パスワードが違います', true); return; }
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  startCamera();
+  fetchAttendees();
+  setInterval(fetchAttendees, 30000);
+}
+
+// ══ カメラ ══
+async function startCamera() {
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 640 } }
+    });
+    const video = document.getElementById('videoEl');
+    video.srcObject = videoStream;
+    video.play();
+    video.onloadedmetadata = () => {
+      document.getElementById('scannerStatus').textContent = 'QRコードをカメラに向けてください';
+      startScanning();
+    };
+  } catch(e) {
+    document.getElementById('scannerStatus').textContent = 'カメラにアクセスできません';
+  }
+}
+
+function startScanning() {
+  const video  = document.getElementById('videoEl');
+  const canvas = document.createElement('canvas');
+  const ctx    = canvas.getContext('2d');
+  scanning = true;
+  scanInterval = setInterval(() => {
+    if (!scanning || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+    if (code) {
+      const now = Date.now();
+      if (code.data === lastScanned && now - lastScannedTime < 3000) return;
+      lastScanned = code.data;
+      lastScannedTime = now;
+      handleScan(code.data);
+    }
+  }, 200);
+}
+
+function toggleCamera() {
+  if (scanning) {
+    scanning = false;
+    clearInterval(scanInterval);
+    document.getElementById('camBtn').textContent = 'カメラ再開';
+    document.getElementById('scannerStatus').textContent = 'スキャン停止中';
+  } else {
+    startScanning();
+    document.getElementById('camBtn').textContent = 'カメラ停止';
+    document.getElementById('scannerStatus').textContent = 'QRコードをカメラに向けてください';
+  }
+}
+
+// ══ スキャン処理 ══
+function handleScan(raw) {
+  let data;
+  try { data = JSON.parse(raw); }
+  catch(e) { showToast('無効なQRコードです', true); return; }
+  const { ticketId, name, email } = data;
+  const attendee = attendees.find(a => a.ticketId === ticketId);
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+  card.className = 'result-card';
+
+  document.getElementById('resultName').textContent = name;
+  document.getElementById('resultId').textContent   = 'ID: ' + ticketId;
+  document.getElementById('resultEmail').textContent = email || '';
+
+  if (attendee) {
+    document.getElementById('resultPayment').textContent  = '支払い方法: ' + (attendee.payment || '—');
+    document.getElementById('resultDatetime').textContent = '購入日時: ' + (attendee.datetime || '—');
+
+    if (attendee.status === '入場済み') {
+      // 二重入場
+      card.classList.add('admitted');
+      document.getElementById('resultBadge').className = 'result-badge ng';
+      document.getElementById('resultBadge').textContent = '二重入場';
+      document.getElementById('resultActions').innerHTML =
+        '<button class="btn red-btn small" onclick="document.getElementById(\'resultCard\').style.display=\'none\'">閉じる</button>';
+      showToast('⚠ このチケットは入場済みです', true);
+    } else {
+      // 正常入場
+      card.classList.add('success');
+      document.getElementById('resultBadge').className = 'result-badge ok';
+      document.getElementById('resultBadge').textContent = '入場OK';
+      document.getElementById('resultActions').innerHTML =
+        `<button class="btn green small" onclick="admitAttendee('${ticketId}')">入場済みにする</button>
+         <button class="btn small" style="background:rgba(255,255,255,.1);color:var(--white);" onclick="document.getElementById('resultCard').style.display='none'">閉じる</button>`;
+      showToast('✓ チケット確認OK', false);
+    }
+  } else {
+    // リストにない
+    document.getElementById('resultPayment').textContent  = '';
+    document.getElementById('resultDatetime').textContent = '※ 購入記録が見つかりません';
+    document.getElementById('resultBadge').className = 'result-badge ng';
+    document.getElementById('resultBadge').textContent = '未登録';
+    document.getElementById('resultActions').innerHTML =
+      '<button class="btn small" style="background:rgba(255,255,255,.1);color:var(--white);" onclick="document.getElementById(\'resultCard\').style.display=\'none\'">閉じる</button>';
+    showToast('⚠ 購入記録が見つかりません', true);
+  }
+}
+
+// ══ 入場済みにする ══
+async function admitAttendee(ticketId) {
+  const now = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'admit', ticketId, admittedAt: now })
+    });
+  } catch(e) { console.warn('更新エラー:', e); }
+
+  // ローカルデータも更新
+  const a = attendees.find(x => x.ticketId === ticketId);
+  if (a) a.status = '入場済み';
+  updateStats();
+  renderList();
+  document.getElementById('resultCard').style.display = 'none';
+  showToast('✓ 入場済みにしました');
+}
+
+// ══ 参加者データ取得 ══
+async function fetchAttendees() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=list');
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      attendees = data;
+      updateStats();
+      renderList();
+    }
+  } catch(e) {
+    // no-cors環境では取得できないためモックデータで動作
+    console.warn('データ取得エラー（Apps Scriptの設定を確認）:', e);
+  }
+}
+
+function updateStats() {
+  document.getElementById('totalCount').textContent    = attendees.length;
+  document.getElementById('admittedCount').textContent = attendees.filter(a => a.status === '入場済み').length;
+}
+
+// ══ リスト表示 ══
+function renderList() {
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const list = document.getElementById('attendeeList');
+  const filtered = attendees.filter(a =>
+    (a.name  || '').toLowerCase().includes(q) ||
+    (a.email || '').toLowerCase().includes(q)
+  );
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">該当する参加者が見つかりません</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(a => `
+    <div class="attendee-item ${a.status === '入場済み' ? 'admitted' : ''}">
+      <div class="attendee-dot"></div>
+      <div class="attendee-info">
+        <div class="attendee-name">${a.name || '—'}</div>
+        <div class="attendee-sub">${a.email || ''} / ${a.payment || ''}</div>
+      </div>
+      <div class="attendee-status">${a.status === '入場済み' ? '入場済み ✓' : '未入場'}</div>
+    </div>
+  `).join('');
+}
+
+// ══ タブ切替 ══
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === (tab === 'scanner' ? 0 : 1)));
+  document.getElementById('scannerTab').style.display = tab === 'scanner' ? 'block' : 'none';
+  document.getElementById('listTab').style.display    = tab === 'list'    ? 'block' : 'none';
+  if (tab === 'list') { fetchAttendees(); renderList(); }
+}
+
+// ══ トースト通知 ══
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

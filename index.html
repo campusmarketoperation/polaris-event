@@ -2,9 +2,13 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#050508">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>POLARIS — 学生のためのプレミアムナイト</title>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;700;900&family=Syne+Mono&family=Syne:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -462,22 +466,84 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
 .reveal.on{ opacity:1; transform:none; }
 
 @media(max-width:768px){
-  nav{ padding:1.2rem 1.5rem; }
-  .hero{ padding:0 1.5rem 5rem; }
-  .hero-title{ font-size:clamp(5rem,22vw,8rem); }
-  .hero-meta{ grid-template-columns:repeat(2,auto); width:100%; }
+  /* Disable custom cursor on touch */
+  body { cursor: auto; }
+  .cursor { display: none; }
+  .method-option, .nav-ticket { cursor: pointer; }
+
+  nav{ padding:1rem 1.5rem; }
+  .nav-ticket{ font-size:.75rem; padding:.5rem 1.2rem; letter-spacing:.1em; }
+
+  /* Hero */
+  .hero{ padding:0 1.5rem 4rem; min-height:100svh; }
+  .hero-eyebrow{ font-size:.65rem; letter-spacing:.2em; }
+  .hero-title{ font-size:clamp(4.5rem,20vw,7rem); }
+  .hero-sub{ font-size:1rem; letter-spacing:.06em; }
+
+  /* Meta grid: 2x2 */
+  .hero-meta{
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    margin-top: 2rem;
+  }
+  .hero-meta-item{ padding:1rem 1.2rem; }
   .hero-meta-item:nth-child(2){ border-right:none; }
   .hero-meta-item:nth-child(3){ border-top:1px solid rgba(0,240,255,.15); }
   .hero-meta-item:nth-child(4){ border-top:1px solid rgba(0,240,255,.15); border-right:none; }
-  .lineup,.reservation{ padding:5rem 1.5rem; }
-  .info-section{ grid-template-columns:1fr; }
+  .hero-meta-item span{ font-size:1rem; }
+
+  .hero-cta{ margin-top:2rem; flex-direction:column; align-items:flex-start; gap:1rem; }
+  .hero-cta a{ width:100%; text-align:center; padding:.9rem 1rem; font-size:.9rem; }
+
+  /* Ticker */
+  .ticker-item{ font-size:.78rem; padding:0 1.5rem; }
+
+  /* Lineup */
+  .lineup{ padding:4rem 1.5rem; }
+  .lineup::before{ display:none; }
+  .section-title{ font-size:clamp(2.5rem,10vw,4rem); }
+  .dj-grid{ grid-template-columns:1fr 1fr; gap:1px; }
+  .dj-card{ padding:1.5rem 1.2rem; }
+  .dj-name{ font-size:1.8rem; }
+  .dj-time{ font-size:.7rem; }
+
+  /* Info */
+  .info-section{ grid-template-columns:1fr; padding:2rem 1.5rem 4rem; }
+  .info-block{ padding:2rem 1.5rem; }
+
+  /* Reservation */
+  .reservation{ padding:4rem 1.5rem; }
   .ticket-stub{ grid-template-columns:1fr; }
   .ticket-stub::before, .ticket-stub::after { display:none; }
-  .ticket-stub-side{ border-top:1px dashed rgba(0,240,255,.3); }
-  .stub-logo{ writing-mode:horizontal-tb; transform:none; }
-  .form-row{ grid-template-columns:1fr; }
-  .dj-grid{ grid-template-columns:1fr 1fr; }
-  footer{ padding:2rem 1.5rem; flex-direction:column; text-align:center; }
+
+  /* Ticket form side */
+  .ticket-form-side{ padding:2rem 1.5rem; }
+  .ticket-header{ flex-direction:column; gap:1rem; align-items:flex-start; margin-bottom:1.5rem; padding-bottom:1.5rem; }
+  .ticket-price-display{ text-align:left; }
+  .ticket-event-name{ font-size:1.6rem; }
+  .ticket-price-display .amount{ font-size:2rem; }
+
+  .form-row{ grid-template-columns:1fr; gap:0; }
+  .form-group input{ font-size:1rem; padding:.8rem 0; }
+
+  .payment-methods{ gap:.5rem; }
+  .method-box{ padding:.8rem; gap:.5rem; }
+  .method-name{ font-size:.8rem; }
+
+  /* Big tap target for submit */
+  .submit-btn{ font-size:1.1rem; padding:1.3rem; letter-spacing:.1em; }
+
+  /* Stub side */
+  .ticket-stub-side{
+    border-top:1px dashed rgba(0,240,255,.3);
+    padding:1.5rem;
+    flex-direction:row; justify-content:space-between; align-items:center;
+  }
+  .stub-details{ flex-direction:row; flex-wrap:wrap; gap:1.2rem; }
+  .stub-logo{ writing-mode:horizontal-tb; transform:none; align-self:center; }
+  .stub-barcode{ height:30px; }
+
+  footer{ padding:2rem 1.5rem; flex-direction:column; text-align:center; gap:.6rem; }
 }
 </style>
 </head>
@@ -640,8 +706,15 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
         <div class="success-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <h3>購入完了！</h3>
-        <p>決済ページへリダイレクトしています…<br><br>当日会場でお会いしましょう。</p>
+        <h3>申込完了！</h3>
+        <p style="margin-bottom:1.5rem;">3秒後にStripe決済ページへ移動します。<br>決済完了後、登録メールに確認をお送りします。</p>
+        <div style="background:rgba(0,240,255,.06);border:1px solid rgba(0,240,255,.3);padding:1.5rem;margin-bottom:1rem;">
+          <div style="font-family:'Syne Mono',monospace;font-size:.6rem;letter-spacing:.2em;color:var(--cyan);margin-bottom:.5rem;">YOUR TICKET ID</div>
+          <div id="ticketIdDisplay" style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.4rem;letter-spacing:.1em;margin-bottom:1rem;"></div>
+          <canvas id="ticketQR" style="display:block;margin:0 auto;border-radius:4px;"></canvas>
+          <div id="ticketNameDisplay" style="font-family:'Syne',sans-serif;font-size:.85rem;margin-top:.8rem;color:var(--dim);"></div>
+        </div>
+        <p style="font-size:.75rem;color:var(--dim);">※ このQRコードは当日の入場確認に使用します</p>
       </div>
     </div>
 
@@ -682,10 +755,10 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   <div class="logo-f">/ POLARIS</div>
   <p>2026.08.23 / club Ammona 大阪難波</p>
   <p>© 2026 学生イベント団体 Polaris</p>
-  <p>polaris.event2026@gmail.com</p>
+  <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="72021d1e13001b015c1704171c064042404432151f131b1e5c111d1f">[email&#160;protected]</a></p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   const cursor = document.getElementById('cursor');
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px';
@@ -703,22 +776,74 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-  // ★ 本番前にここを差し替え ★
+  // ══════════════════════════════════════════════
+  // ★ ここを本番前に差し替え ★
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_YOUR_PUBLISHABLE_KEY_HERE';
   const STRIPE_PAYMENT_LINK    = 'https://buy.stripe.com/YOUR_PAYMENT_LINK_HERE';
+  // Google Apps Script Web App URL（設定方法は apps-script.js を参照）
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeDaqo3bMBkOF7RUnu26uiV25RZK-2eqpbwyJSl9s3gqIY7xFbBrbMHoPhpWnmUOZ4qw/exec';
+  // ══════════════════════════════════════════════
 
-  document.getElementById('reserveForm').addEventListener('submit', function(e) {
+  // QRコードをcanvasに描画（qrcode.jsを使用）
+  function generateQR(text, canvas) {
+    return new Promise((resolve) => {
+      QRCode.toCanvas(canvas, text, {
+        width: 160, margin: 1,
+        color: { dark: '#050508', light: '#f0eeff' }
+      }, resolve);
+    });
+  }
+
+  document.getElementById('reserveForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const email = document.getElementById('emailInput').value;
-    this.style.opacity = '0'; this.style.transition = 'opacity .4s';
-    setTimeout(() => {
+    const name   = document.getElementById('nameInput').value;
+    const email  = document.getElementById('emailInput').value;
+    const method = document.querySelector('input[name="payment"]:checked').value;
+    const now    = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+    const ticketId = 'POL-' + Date.now().toString(36).toUpperCase();
+
+    // ── STEP 1: Google Sheetsに記録 ──
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId, name, email,
+          payment: method === 'card' ? 'クレジットカード' : 'PayPay',
+          datetime: now,
+          status: '未入場'
+        })
+      });
+    } catch(err) {
+      console.warn('Sheets記録エラー（決済は続行）:', err);
+    }
+
+    // ── STEP 2: QRコード生成・表示 ──
+    this.style.opacity = '0';
+    this.style.transition = 'opacity .4s';
+    setTimeout(async () => {
       this.style.display = 'none';
       const msg = document.getElementById('successMsg');
-      msg.style.display = 'block'; msg.style.opacity = '0'; msg.style.transition = 'opacity .6s';
+
+      // QR描画
+      const canvas = document.getElementById('ticketQR');
+      const qrData = JSON.stringify({ ticketId, name, email });
+      await generateQR(qrData, canvas);
+
+      // チケットID・名前表示
+      document.getElementById('ticketIdDisplay').textContent = ticketId;
+      document.getElementById('ticketNameDisplay').textContent = name;
+
+      msg.style.display = 'block';
+      msg.style.opacity = '0';
+      msg.style.transition = 'opacity .6s';
       requestAnimationFrame(() => msg.style.opacity = '1');
+
+      // Stripeへリダイレクト
       const url = new URL(STRIPE_PAYMENT_LINK);
       url.searchParams.set('prefilled_email', email);
-      setTimeout(() => { window.location.href = url.toString(); }, 1400);
+      setTimeout(() => { window.location.href = url.toString(); }, 3000);
     }, 400);
   });
 </script>
