@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>POLARIS — 学生のためのプレミアムナイト</title>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;700;900&family=Syne+Mono&family=Syne:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -711,7 +711,8 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
         <div style="background:rgba(0,240,255,.06);border:1px solid rgba(0,240,255,.3);padding:1.5rem;margin-bottom:1rem;">
           <div style="font-family:'Syne Mono',monospace;font-size:.6rem;letter-spacing:.2em;color:var(--cyan);margin-bottom:.5rem;">YOUR TICKET ID</div>
           <div id="ticketIdDisplay" style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.4rem;letter-spacing:.1em;margin-bottom:1rem;"></div>
-          <canvas id="ticketQR" style="display:block;margin:0 auto;border-radius:4px;"></canvas>
+          <canvas id="ticketQR" style="display:none;"></canvas>
+          <div id="ticketQRDiv" style="display:flex;justify-content:center;margin:0 auto;border-radius:4px;"></div>
           <div id="ticketNameDisplay" style="font-family:'Syne',sans-serif;font-size:.85rem;margin-top:.8rem;color:var(--dim);"></div>
         </div>
         <p style="font-size:.75rem;color:var(--dim);">※ このQRコードは当日の入場確認に使用します</p>
@@ -784,13 +785,19 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeDaqo3bMBkOF7RUnu26uiV25RZK-2eqpbwyJSl9s3gqIY7xFbBrbMHoPhpWnmUOZ4qw/exec';
   // ══════════════════════════════════════════════
 
-  // QRコードをcanvasに描画（qrcode.jsを使用）
-  function generateQR(text, canvas) {
+  // QRコードをdivに描画（qrcodejs使用）
+  function generateQR(text, container) {
     return new Promise((resolve) => {
-      QRCode.toCanvas(canvas, text, {
-        width: 160, margin: 1,
-        color: { dark: '#050508', light: '#f0eeff' }
-      }, resolve);
+      container.innerHTML = ''; // リセット
+      new QRCode(container, {
+        text: text,
+        width: 160,
+        height: 160,
+        colorDark: '#050508',
+        colorLight: '#f0eeff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      setTimeout(resolve, 100); // 描画完了を待つ
     });
   }
 
@@ -827,9 +834,9 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
       const msg = document.getElementById('successMsg');
 
       // QR描画
-      const canvas = document.getElementById('ticketQR');
+      const qrContainer = document.getElementById('ticketQRDiv');
       const qrData = JSON.stringify({ ticketId, name, email });
-      await generateQR(qrData, canvas);
+      await generateQR(qrData, qrContainer);
 
       // チケットID・名前表示
       document.getElementById('ticketIdDisplay').textContent = ticketId;
