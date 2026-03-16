@@ -324,7 +324,15 @@ function handleScan(raw) {
     document.getElementById('resultPayment').textContent  = '支払い方法: ' + (attendee.payment || '—');
     document.getElementById('resultDatetime').textContent = '購入日時: ' + (attendee.datetime || '—');
 
-    if (attendee.status === '入場済み') {
+    if (attendee.paymentStatus !== '支払い済み') {
+      // 未払い
+      card.classList.add('admitted');
+      document.getElementById('resultBadge').className = 'result-badge ng';
+      document.getElementById('resultBadge').textContent = '未払い';
+      document.getElementById('resultActions').innerHTML =
+        '<button class="btn red-btn small" onclick="document.getElementById(\'resultCard\').style.display=\'none\'">閉じる</button>';
+      showToast('⚠ 支払いが確認できていません', true);
+    } else if (attendee.status === '入場済み') {
       // 二重入場
       card.classList.add('admitted');
       document.getElementById('resultBadge').className = 'result-badge ng';
@@ -391,15 +399,19 @@ async function fetchAttendees() {
 }
 
 function updateStats() {
-  document.getElementById('totalCount').textContent    = attendees.length;
-  document.getElementById('admittedCount').textContent = attendees.filter(a => a.status === '入場済み').length;
+  const paid = attendees.filter(a => a.paymentStatus === '支払い済み');
+  document.getElementById('totalCount').textContent    = paid.length;
+  document.getElementById('admittedCount').textContent = paid.filter(a => a.status === '入場済み').length;
 }
 
 // ══ リスト表示 ══
 function renderList() {
   const q    = document.getElementById('searchInput').value.toLowerCase();
   const list = document.getElementById('attendeeList');
-  const filtered = attendees.filter(a =>
+
+  // 支払い済みのみ表示
+  const paid = attendees.filter(a => a.paymentStatus === '支払い済み');
+  const filtered = paid.filter(a =>
     (a.name  || '').toLowerCase().includes(q) ||
     (a.email || '').toLowerCase().includes(q)
   );
