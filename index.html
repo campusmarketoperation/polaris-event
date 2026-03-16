@@ -826,33 +826,60 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
       console.warn('Sheets記録エラー（決済は続行）:', err);
     }
 
-    // ── STEP 2: QRコード生成・表示 ──
+    // ── STEP 2: チケット情報をsessionStorageに保存してStripeへ ──
+    sessionStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email }));
+
     this.style.opacity = '0';
     this.style.transition = 'opacity .4s';
-    setTimeout(async () => {
+    setTimeout(() => {
       this.style.display = 'none';
       const msg = document.getElementById('successMsg');
-
-      // QR描画
-      const qrContainer = document.getElementById('ticketQRDiv');
-      const qrData = JSON.stringify({ ticketId, name, email });
-      await generateQR(qrData, qrContainer);
-
-      // チケットID・名前表示
-      document.getElementById('ticketIdDisplay').textContent = ticketId;
-      document.getElementById('ticketNameDisplay').textContent = name;
-
+      msg.querySelector('h3').textContent = '決済ページへ移動します';
+      msg.querySelector('p').textContent = 'Stripeの安全な決済ページへリダイレクトしています…\n\n決済完了後、自動でチケットが表示されます。';
       msg.style.display = 'block';
       msg.style.opacity = '0';
       msg.style.transition = 'opacity .6s';
       requestAnimationFrame(() => msg.style.opacity = '1');
 
-      // Stripeへリダイレクト
+      // success_urlにサイト自身を指定（決済完了後に戻ってくる）
       const url = new URL(STRIPE_PAYMENT_LINK);
       url.searchParams.set('prefilled_email', email);
-      setTimeout(() => { window.location.href = url.toString(); }, 3000);
+      url.searchParams.set('success_url', window.location.origin + window.location.pathname + '?paid=1');
+      setTimeout(() => { window.location.href = url.toString(); }, 1500);
     }, 400);
   });
+
+  // ── 決済完了後：URLパラメータを見てQRを表示 ──
+  (async function checkPaidReturn() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') !== '1') return;
+
+    const stored = sessionStorage.getItem('polaris_ticket');
+    if (!stored) return;
+
+    const { ticketId, name, email } = JSON.parse(stored);
+
+    // フォームセクションを非表示にしてQR表示
+    const form = document.getElementById('reserveForm');
+    if (form) form.style.display = 'none';
+
+    const msg = document.getElementById('successMsg');
+    const qrContainer = document.getElementById('ticketQRDiv');
+    const qrData = JSON.stringify({ ticketId, name, email });
+
+    await generateQR(qrData, qrContainer);
+    document.getElementById('ticketIdDisplay').textContent  = ticketId;
+    document.getElementById('ticketNameDisplay').textContent = name;
+
+    msg.style.display = 'block';
+    msg.style.opacity = '1';
+
+    // 使い終わったら削除
+    sessionStorage.removeItem('polaris_ticket');
+
+    // URLのパラメータをきれいに消す
+    window.history.replaceState({}, '', window.location.pathname + '#ticket');
+  })();
 </script>
 </body>
 </html>
