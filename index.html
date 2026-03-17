@@ -670,6 +670,10 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
             <input type="email" id="emailInput" placeholder="your@email.com" required>
           </div>
         </div>
+        <div class="form-group">
+          <label>生年月日</label>
+          <input type="date" id="dobInput" required style="color-scheme:dark;">
+        </div>
 
         <span class="payment-label">支払い方法</span>
         <div class="payment-methods">
@@ -805,6 +809,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     e.preventDefault();
     const name   = document.getElementById('nameInput').value;
     const email  = document.getElementById('emailInput').value;
+    const dob    = document.getElementById('dobInput').value;
     const method = document.querySelector('input[name="payment"]:checked').value;
     const now    = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
     const ticketId = 'POL-' + Date.now().toString(36).toUpperCase();
@@ -816,7 +821,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ticketId, name, email,
+          ticketId, name, email, dob,
           payment: method === 'card' ? 'クレジットカード' : 'PayPay',
           datetime: now,
           status: '未入場'

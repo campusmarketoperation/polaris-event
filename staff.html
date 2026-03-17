@@ -323,6 +323,7 @@ function handleScan(raw) {
   if (attendee) {
     document.getElementById('resultPayment').textContent  = '支払い方法: ' + (attendee.payment || '—');
     document.getElementById('resultDatetime').textContent = '購入日時: ' + (attendee.datetime || '—');
+    document.getElementById('resultEmail').textContent = (attendee.email || '') + (attendee.dob ? '　生年月日: ' + attendee.dob : '');
 
     if (attendee.paymentStatus !== '支払い済み') {
       // 未払い
