@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>POLARIS — スタッフ入場管理</title>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Syne+Mono&family=Syne:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="/jsqr.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -277,23 +277,44 @@ async function startCamera() {
 function startScanning() {
   const video  = document.getElementById('videoEl');
   const canvas = document.createElement('canvas');
-  const ctx    = canvas.getContext('2d');
+  const ctx    = canvas.getContext('2d', { willReadFrequently: true });
   scanning = true;
-  scanInterval = setInterval(() => {
+
+  scanInterval = setInterval(async () => {
     if (!scanning || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
-    if (code) {
-      const now = Date.now();
-      if (code.data === lastScanned && now - lastScannedTime < 3000) return;
-      lastScanned = code.data;
-      lastScannedTime = now;
-      handleScan(code.data);
+
+    // BarcodeDetector API（Chrome/Android）優先
+    if ('BarcodeDetector' in window) {
+      try {
+        const detector = new BarcodeDetector({ formats: ['qr_code'] });
+        const barcodes = await detector.detect(video);
+        if (barcodes.length > 0) {
+          const raw = barcodes[0].rawValue;
+          const now = Date.now();
+          if (raw === lastScanned && now - lastScannedTime < 3000) return;
+          lastScanned = raw; lastScannedTime = now;
+          handleScan(raw);
+        }
+      } catch(e) {}
     }
-  }, 200);
+    // jsQR（iPhone Safari含む全ブラウザ対応）
+    else if (typeof jsQR !== 'undefined') {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+      if (code) {
+        const now = Date.now();
+        if (code.data === lastScanned && now - lastScannedTime < 3000) return;
+        lastScanned = code.data; lastScannedTime = now;
+        handleScan(code.data);
+      }
+    } else {
+      document.getElementById('scannerStatus').textContent = 'ライブラリ読み込み中...';
+    }
+  }, 300);
 }
 
 function toggleCamera() {
