@@ -11,7 +11,7 @@
 body { background:var(--black);color:var(--white);font-family:'Syne',sans-serif;min-height:100vh; }
 nav { padding:1.5rem 3rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.07); }
 .logo { font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:1.5rem;color:var(--cyan);text-shadow:0 0 15px var(--cyan);letter-spacing:.1em;text-decoration:none; }
-.back-link { font-family:'Syne Mono',monospace;font-size:.75rem;letter-spacing:.15em;color:var(--dim);text-decoration:none;transition:color .2s; }
+.back-link { font-family:'Syne Mono',monospace;font-size:.75rem;letter-spacing:.15em;color:var(--dim);text-decoration:none; }
 .back-link:hover { color:var(--cyan); }
 main { max-width:800px;margin:0 auto;padding:4rem 2rem 6rem; }
 h1 { font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(2rem,6vw,3.5rem);letter-spacing:.05em;margin-bottom:.5rem;line-height:1; }
@@ -20,8 +20,8 @@ h1 { font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:cl
 table { width:100%;border-collapse:collapse;font-size:.9rem;line-height:1.8; }
 tr { border-bottom:1px solid rgba(255,255,255,.07); }
 tr:last-child { border-bottom:none; }
-th { font-family:'Syne Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);font-weight:400;padding:1.2rem 1.5rem 1.2rem 0;width:200px;vertical-align:top;white-space:nowrap; }
-td { padding:1.2rem 0;color:rgba(240,238,255,.8);vertical-align:top; }
+th { font-family:'Syne Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);font-weight:400;padding:1.2rem 1.5rem 1.2rem 0;width:220px;vertical-align:top;white-space:nowrap; }
+td { padding:1.2rem 0;color:rgba(240,238,255,.85);vertical-align:top; }
 .note { margin-top:3rem;padding:1.5rem;border:1px solid rgba(0,240,255,.2);background:rgba(0,240,255,.03);font-size:.8rem;color:var(--dim);line-height:1.8;font-family:'Syne Mono',monospace; }
 footer { padding:2rem 3rem;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem; }
 footer p { font-size:.75rem;color:rgba(255,255,255,.3);letter-spacing:.1em;font-family:'Syne Mono',monospace; }
@@ -48,19 +48,89 @@ footer p { font-size:.75rem;color:rgba(255,255,255,.3);letter-spacing:.1em;font-
   <div class="divider"></div>
 
   <table>
-    <tr><th>販売業者</th><td>谷屋 海斗（屋号：AXIA）</td></tr>
-    <tr><th>代表者</th><td>谷屋 海斗</td></tr>
-    <tr><th>所在地</th><td>〒544-0023 大阪府大阪市生野区林寺5丁目7-18 エクセル共立201<br>※ お問い合わせはメールにてお願いします。</td></tr>
-    <tr><th>連絡先</th><td>電話：090-6370-9528<br>メール：axiaofficial.contact@gmail.com<br>※ 営業時間外はメールにてお問い合わせください。</td></tr>
-    <tr><th>販売価格</th><td>¥3,000（税込）/ 1枚　※ 1ドリンク込み</td></tr>
-    <tr><th>商品代金以外の費用</th><td>なし（決済手数料はこちらが負担します）</td></tr>
-    <tr><th>支払い方法</th><td>クレジットカード（VISA / Mastercard / AMEX）<br>PayPay</td></tr>
-    <tr><th>支払い時期</th><td>購入手続き完了時にお支払いいただきます。</td></tr>
-    <tr><th>商品の引き渡し時期</th><td>お支払い完了後、ご登録のメールアドレスへQRコード付きチケットを送付します。</td></tr>
-    <tr><th>返品・キャンセル</th><td>チケットの性質上、購入完了後のキャンセル・返品はお受けできません。<br>ただし、イベントが主催者都合により中止となった場合は全額返金いたします。</td></tr>
-    <tr><th>イベント情報</th><td>イベント名：POLARIS Night 2026<br>開催日時：2026年8月23日（日）17:00〜21:30<br>会場：club Ammona（大阪府大阪市浪速区）</td></tr>
+    <tr>
+      <th>販売業者</th>
+      <td>谷屋 海斗（屋号：AXIA）</td>
+    </tr>
+    <tr>
+      <th>代表者氏名</th>
+      <td>谷屋 海斗</td>
+    </tr>
+    <tr>
+      <th>所在地</th>
+      <td>〒544-0023<br>大阪府大阪市生野区林寺5丁目7-18 エクセル共立201</td>
+    </tr>
+    <tr>
+      <th>電話番号</th>
+      <td>090-6370-9528<br>（受付時間：10:00〜20:00 / 土日祝を除く）</td>
+    </tr>
+    <tr>
+      <th>メールアドレス</th>
+      <td>axiaofficial.contact@gmail.com</td>
+    </tr>
+    <tr>
+      <th>販売URL</th>
+      <td>https://polaris-event.vercel.app</td>
+    </tr>
+    <tr>
+      <th>販売商品</th>
+      <td>POLARIS Night 2026 入場チケット</td>
+    </tr>
+    <tr>
+      <th>販売価格</th>
+      <td>¥3,000（税込）/ 1枚<br>※ 1ドリンク付き</td>
+    </tr>
+    <tr>
+      <th>商品代金以外の費用</th>
+      <td>なし<br>（決済手数料・送料等は一切かかりません）</td>
+    </tr>
+    <tr>
+      <th>支払い方法</th>
+      <td>クレジットカード（VISA / Mastercard / American Express）<br>PayPay</td>
+    </tr>
+    <tr>
+      <th>支払い時期</th>
+      <td>購入手続き完了時にお支払いいただきます。</td>
+    </tr>
+    <tr>
+      <th>販売数量</th>
+      <td>1回の購入につき1枚まで</td>
+    </tr>
+    <tr>
+      <th>商品の引き渡し時期</th>
+      <td>決済完了後、ご登録のメールアドレスへQRコード付き電子チケットを送付します。<br>通常、決済完了から数分以内にメールが届きます。</td>
+    </tr>
+    <tr>
+      <th>返品・キャンセル</th>
+      <td>電子チケットの性質上、購入完了後のキャンセル・返品・返金はお受けできません。<br>ただし、以下の場合は全額返金いたします。<br>・イベントが主催者都合により中止となった場合<br>・天災等の不可抗力によりイベントが開催できなかった場合</td>
+    </tr>
+    <tr>
+      <th>不良品について</th>
+      <td>電子チケットが届かない・QRコードが読み取れない等の不具合が生じた場合は、メール（axiaofficial.contact@gmail.com）にてお問い合わせください。速やかに対応いたします。</td>
+    </tr>
+    <tr>
+      <th>イベント情報</th>
+      <td>
+        イベント名：POLARIS Night 2026<br>
+        開催日時：2026年8月23日（日）17:00〜21:30<br>
+        会場：club Ammona（大阪府大阪市浪速区）<br>
+        ※ 入場の際は顔写真付き身分証明書をご持参ください。<br>
+        ※ 20歳未満の方はアルコールの提供ができません。
+      </td>
+    </tr>
   </table>
 
   <div class="note">
-    ※ 本ページに記載の情報は予告なく変更される場合があります。<br>
-    ※ ご不明な点はメール（<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d6b7aebfb7b9b0b0bfb5bfb7baf8b5b9b8a2b7b5a296b1bbb
+    ※ 本ページに記載の情報は予告なく変更される場合があります。変更があった場合は本ページにて告知します。<br>
+    ※ ご不明な点は axiaofficial.contact@gmail.com またはお電話（090-6370-9528）にてお問い合わせください。
+  </div>
+</main>
+
+<footer>
+  <div class="logo-f">/ POLARIS</div>
+  <p>© 2026 学生イベント団体 Polaris</p>
+  <p>axiaofficial.contact@gmail.com</p>
+</footer>
+
+</body>
+</html>
