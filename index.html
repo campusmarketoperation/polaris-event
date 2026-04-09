@@ -850,7 +850,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     }).catch(err => console.warn('Sheets記録エラー:', err));
 
     // ── STEP 2: すぐにStripeへ飛ぶ ──
-    sessionStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email }));
+    localStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email }));
 
     this.style.opacity = '0';
     this.style.transition = 'opacity .4s';
@@ -864,6 +864,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
 
       const url = new URL(STRIPE_PAYMENT_LINK);
       url.searchParams.set('prefilled_email', email);
+      url.searchParams.set('success_url', 'https://www.polaris2025official.com/?paid=1');
       setTimeout(() => { window.location.href = url.toString(); }, 800);
     }, 300);
   });
@@ -873,7 +874,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     const params = new URLSearchParams(window.location.search);
     if (params.get('paid') !== '1') return;
 
-    const stored = sessionStorage.getItem('polaris_ticket');
+    const stored = localStorage.getItem('polaris_ticket');
     const name = stored ? JSON.parse(stored).name : '';
 
     // フォームを非表示
@@ -891,7 +892,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     msg.style.display = 'block';
     msg.style.opacity = '1';
 
-    sessionStorage.removeItem('polaris_ticket');
+    localStorage.removeItem('polaris_ticket');
     window.history.replaceState({}, '', 'https://www.polaris2025official.com/#complete');
   })();
 </script>
