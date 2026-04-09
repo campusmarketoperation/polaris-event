@@ -779,12 +779,12 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   <div class="logo-f">/ POLARIS</div>
   <p>2026.08.23 / club Ammona 大阪難波</p>
   <p>© 2026 学生イベント団体 Polaris</p>
-  <p>polaris.event2026@gmail.com</p>
+  <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c4b4aba8a5b6adb7eaa1b2a1aab0f6f4f6f284a3a9a5ada8eaa7aba9">[email&#160;protected]</a></p>
   <p><a href="/tokushoho.html" style="color:rgba(255,255,255,.3);text-decoration:underline;font-family:'Syne Mono',monospace;font-size:.75rem;letter-spacing:.1em;">特定商取引法に基づく表記</a></p>
-  <p style="color:rgba(255,255,255,.4);font-size:.75rem;font-family:'Syne Mono',monospace;letter-spacing:.1em;">📩 お問い合わせ：polaris.event2026@gmail.com</p>
+  <p style="color:rgba(255,255,255,.4);font-size:.75rem;font-family:'Syne Mono',monospace;letter-spacing:.1em;">📩 お問い合わせ：<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d3a3bcbfb2a1baa0fdb6a5b6bda7e1e3e1e593b4beb2babffdb0bcbe">[email&#160;protected]</a></p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   const cursor = document.getElementById('cursor');
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px';
@@ -836,24 +836,20 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     const now    = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
     const ticketId = 'POL-' + Date.now().toString(36).toUpperCase();
 
-    // ── STEP 1: Google Sheetsに記録 ──
-    try {
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ticketId, name, email, dob, consent,
-          payment: {card:'クレジットカード',paypay:'PayPay',applepay:'Apple Pay',googlepay:'Google Pay',konbini:'コンビニ払い'}[method] || method,
-          datetime: now,
-          status: '未入場'
-        })
-      });
-    } catch(err) {
-      console.warn('Sheets記録エラー（決済は続行）:', err);
-    }
+    // ── STEP 1: GASへの送信（待たずに非同期で実行）──
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ticketId, name, email, dob, consent,
+        payment: {card:'クレジットカード',paypay:'PayPay',applepay:'Apple Pay',googlepay:'Google Pay',konbini:'コンビニ払い'}[method] || method,
+        datetime: now,
+        status: '未入場'
+      })
+    }).catch(err => console.warn('Sheets記録エラー:', err));
 
-    // ── STEP 2: チケット情報をsessionStorageに保存してStripeへ ──
+    // ── STEP 2: すぐにStripeへ飛ぶ ──
     sessionStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email }));
 
     this.style.opacity = '0';
@@ -861,19 +857,16 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     setTimeout(() => {
       this.style.display = 'none';
       const msg = document.getElementById('successMsg');
-      msg.querySelector('h3').textContent = '決済ページへ移動します';
-      msg.querySelector('p').textContent = 'Stripeの安全な決済ページへリダイレクトしています…\n\n決済完了後、自動でチケットが表示されます。';
       msg.style.display = 'block';
       msg.style.opacity = '0';
       msg.style.transition = 'opacity .6s';
       requestAnimationFrame(() => msg.style.opacity = '1');
 
-      // success_urlにサイト自身を指定（決済完了後に戻ってくる）
       const url = new URL(STRIPE_PAYMENT_LINK);
       url.searchParams.set('prefilled_email', email);
       url.searchParams.set('success_url', 'https://www.polaris2025official.com/?paid=1');
-      setTimeout(() => { window.location.href = url.toString(); }, 1500);
-    }, 400);
+      setTimeout(() => { window.location.href = url.toString(); }, 800);
+    }, 300);
   });
 
   // ── 決済完了後：URLパラメータを見て完了メッセージを表示 ──
