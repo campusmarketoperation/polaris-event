@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>POLARIS — 学生のためのプレミアムナイト</title>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;700;900&family=Syne+Mono&family=Syne:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -810,22 +809,6 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeDaqo3bMBkOF7RUnu26uiV25RZK-2eqpbwyJSl9s3gqIY7xFbBrbMHoPhpWnmUOZ4qw/exec';
   // ══════════════════════════════════════════════
 
-  // QRコードをdivに描画（qrcodejs使用）
-  function generateQR(text, container) {
-    return new Promise((resolve) => {
-      container.innerHTML = ''; // リセット
-      new QRCode(container, {
-        text: text,
-        width: 160,
-        height: 160,
-        colorDark: '#050508',
-        colorLight: '#f0eeff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-      setTimeout(resolve, 100); // 描画完了を待つ
-    });
-  }
-
   document.getElementById('reserveForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const name   = document.getElementById('nameInput').value;
@@ -850,7 +833,10 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     }).catch(err => console.warn('Sheets記録エラー:', err));
 
     // ── STEP 2: すぐにStripeへ飛ぶ ──
-    localStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email }));
+    // 名前をURLパラメータで渡す（localStorage非対応ブラウザ対策）
+    try { localStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email })); } catch(e) {}
+    const successUrlWithName = 'https://www.polaris2025official.com/?paid=1&n=' + encodeURIComponent(name);
+    url.searchParams.set('success_url', successUrlWithName);
 
     this.style.opacity = '0';
     this.style.transition = 'opacity .4s';
@@ -875,7 +861,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     if (params.get('paid') !== '1') return;
 
     const stored = localStorage.getItem('polaris_ticket');
-    const name = stored ? JSON.parse(stored).name : '';
+    const name = stored ? JSON.parse(stored).name : (params.get('n') ? decodeURIComponent(params.get('n')) : '');
 
     // フォームを非表示
     const form = document.getElementById('reserveForm');
