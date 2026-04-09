@@ -833,10 +833,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     }).catch(err => console.warn('Sheets記録エラー:', err));
 
     // ── STEP 2: すぐにStripeへ飛ぶ ──
-    // 名前をURLパラメータで渡す（localStorage非対応ブラウザ対策）
     try { localStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email })); } catch(e) {}
-    const successUrlWithName = 'https://www.polaris2025official.com/?paid=1&n=' + encodeURIComponent(name);
-    url.searchParams.set('success_url', successUrlWithName);
 
     this.style.opacity = '0';
     this.style.transition = 'opacity .4s';
@@ -850,7 +847,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
 
       const url = new URL(STRIPE_PAYMENT_LINK);
       url.searchParams.set('prefilled_email', email);
-      url.searchParams.set('success_url', 'https://www.polaris2025official.com/?paid=1');
+      url.searchParams.set('success_url', 'https://www.polaris2025official.com/?paid=1&n=' + encodeURIComponent(name));
       setTimeout(() => { window.location.href = url.toString(); }, 800);
     }, 300);
   });
