@@ -831,7 +831,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     const name   = document.getElementById('nameInput').value;
     const email  = document.getElementById('emailInput').value;
     const dob     = document.getElementById('dobInput').value;
-    const consent = document.getElementById('consentCheck').checked;
+    const consent = document.getElementById('privacyCheck') ? document.getElementById('privacyCheck').checked : false;
     const method = document.querySelector('input[name="payment"]:checked').value;
     const now    = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
     const ticketId = 'POL-' + Date.now().toString(36).toUpperCase();
