@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>POLARIS — 学生のためのプレミアムナイト</title>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;700;900&family=Syne+Mono&family=Syne:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -684,7 +685,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
               </span>
               <span class="method-text">
                 <span class="method-name">クレジットカード</span>
-                <span class="method-brands">VISA / MC / AMEX / Apple Pay / Google Pay</span>
+                <span class="method-brands">VISA / MC / AMEX</span>
               </span>
             </span>
           </label>
@@ -700,30 +701,10 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
               </span>
             </span>
           </label>
-          <label class="method-option">
-            <input type="radio" name="payment" value="konbini">
-            <span class="method-box">
-              <span class="method-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              </span>
-              <span class="method-text">
-                <span class="method-name">コンビニ払い</span>
-                <span class="method-brands">セブン / ローソン 他</span>
-              </span>
-            </span>
-          </label>
         </div>
 
         <button type="submit" class="submit-btn">PURCHASE TICKET →</button>
-
-        <div style="margin-top:1.4rem;display:flex;align-items:flex-start;gap:.75rem;">
-          <input type="checkbox" id="privacyCheck" required
-            style="width:15px;height:15px;margin-top:2px;flex-shrink:0;accent-color:var(--cyan);cursor:pointer;">
-          <label for="privacyCheck"
-            style="font-family:'Syne Mono',monospace;font-size:.68rem;color:rgba(240,238,255,.55);letter-spacing:.04em;line-height:1.7;cursor:pointer;">
-            個人情報をチケット管理・本人確認・イベント運営の目的で利用することに同意します。<span style="color:var(--magenta);"> ＊必須</span>
-          </label>
-        </div>
+      </form>
 
       <div class="success-msg" id="successMsg">
         <div class="success-icon">
@@ -778,9 +759,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   <div class="logo-f">/ POLARIS</div>
   <p>2026.08.23 / club Ammona 大阪難波</p>
   <p>© 2026 学生イベント団体 Polaris</p>
-  <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c4b4aba8a5b6adb7eaa1b2a1aab0f6f4f6f284a3a9a5ada8eaa7aba9">[email&#160;protected]</a></p>
-  <p><a href="/tokushoho.html" style="color:rgba(255,255,255,.3);text-decoration:underline;font-family:'Syne Mono',monospace;font-size:.75rem;letter-spacing:.1em;">特定商取引法に基づく表記</a></p>
-  <p style="color:rgba(255,255,255,.4);font-size:.75rem;font-family:'Syne Mono',monospace;letter-spacing:.1em;">📩 お問い合わせ：<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d3a3bcbfb2a1baa0fdb6a5b6bda7e1e3e1e593b4beb2babffdb0bcbe">[email&#160;protected]</a></p>
+  <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="72021d1e13001b015c1704171c064042404432151f131b1e5c111d1f">[email&#160;protected]</a></p>
 </footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
@@ -809,47 +788,69 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeDaqo3bMBkOF7RUnu26uiV25RZK-2eqpbwyJSl9s3gqIY7xFbBrbMHoPhpWnmUOZ4qw/exec';
   // ══════════════════════════════════════════════
 
+  // QRコードをdivに描画（qrcodejs使用）
+  function generateQR(text, container) {
+    return new Promise((resolve) => {
+      container.innerHTML = ''; // リセット
+      new QRCode(container, {
+        text: text,
+        width: 160,
+        height: 160,
+        colorDark: '#050508',
+        colorLight: '#f0eeff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      setTimeout(resolve, 100); // 描画完了を待つ
+    });
+  }
+
   document.getElementById('reserveForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const name   = document.getElementById('nameInput').value;
     const email  = document.getElementById('emailInput').value;
-    const dob     = document.getElementById('dobInput').value;
-    const consent = document.getElementById('privacyCheck') ? document.getElementById('privacyCheck').checked : false;
+    const dob    = document.getElementById('dobInput').value;
     const method = document.querySelector('input[name="payment"]:checked').value;
     const now    = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
     const ticketId = 'POL-' + Date.now().toString(36).toUpperCase();
 
-    // ── STEP 1: GASへの送信（待たずに非同期で実行）──
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ticketId, name, email, dob, consent,
-        payment: {card:'クレジットカード',paypay:'PayPay',applepay:'Apple Pay',googlepay:'Google Pay',konbini:'コンビニ払い'}[method] || method,
-        datetime: now,
-        status: '未入場'
-      })
-    }).catch(err => console.warn('Sheets記録エラー:', err));
+    // ── STEP 1: Google Sheetsに記録 ──
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId, name, email, dob,
+          payment: method === 'card' ? 'クレジットカード' : 'PayPay',
+          datetime: now,
+          status: '未入場'
+        })
+      });
+    } catch(err) {
+      console.warn('Sheets記録エラー（決済は続行）:', err);
+    }
 
-    // ── STEP 2: すぐにStripeへ飛ぶ ──
-    try { localStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email })); } catch(e) {}
+    // ── STEP 2: チケット情報をsessionStorageに保存してStripeへ ──
+    sessionStorage.setItem('polaris_ticket', JSON.stringify({ ticketId, name, email }));
 
     this.style.opacity = '0';
     this.style.transition = 'opacity .4s';
     setTimeout(() => {
       this.style.display = 'none';
       const msg = document.getElementById('successMsg');
+      msg.querySelector('h3').textContent = '決済ページへ移動します';
+      msg.querySelector('p').textContent = 'Stripeの安全な決済ページへリダイレクトしています…\n\n決済完了後、自動でチケットが表示されます。';
       msg.style.display = 'block';
       msg.style.opacity = '0';
       msg.style.transition = 'opacity .6s';
       requestAnimationFrame(() => msg.style.opacity = '1');
 
+      // success_urlにサイト自身を指定（決済完了後に戻ってくる）
       const url = new URL(STRIPE_PAYMENT_LINK);
       url.searchParams.set('prefilled_email', email);
-      url.searchParams.set('success_url', 'https://www.polaris2025official.com/?paid=1&n=' + encodeURIComponent(name));
-      setTimeout(() => { window.location.href = url.toString(); }, 800);
-    }, 300);
+      url.searchParams.set('success_url', window.location.origin + window.location.pathname + '?paid=1');
+      setTimeout(() => { window.location.href = url.toString(); }, 1500);
+    }, 400);
   });
 
   // ── 決済完了後：URLパラメータを見て完了メッセージを表示 ──
@@ -857,18 +858,12 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     const params = new URLSearchParams(window.location.search);
     if (params.get('paid') !== '1') return;
 
-    const stored = localStorage.getItem('polaris_ticket');
-    const name = stored ? JSON.parse(stored).name : (params.get('n') ? decodeURIComponent(params.get('n')) : '');
+    const stored = sessionStorage.getItem('polaris_ticket');
+    const name = stored ? JSON.parse(stored).name : '';
 
     // フォームを非表示
     const form = document.getElementById('reserveForm');
     if (form) form.style.display = 'none';
-
-    // チェックボックスエリアも非表示
-    if (form) {
-      const checkboxDiv = form.nextElementSibling;
-      if (checkboxDiv) checkboxDiv.style.display = 'none';
-    }
 
     // 完了メッセージを表示
     const msg = document.getElementById('successMsg');
@@ -881,12 +876,8 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     msg.style.display = 'block';
     msg.style.opacity = '1';
 
-    // チケットセクションへ即座にジャンプ
-    document.getElementById('ticket').scrollIntoView({ behavior: 'instant', block: 'start' });
-    msg.scrollIntoView({ behavior: 'instant', block: 'center' });
-
-    localStorage.removeItem('polaris_ticket');
-    window.history.replaceState({}, '', 'https://www.polaris2025official.com/#complete');
+    sessionStorage.removeItem('polaris_ticket');
+    window.history.replaceState({}, '', window.location.pathname + '#complete');
   })();
 </script>
 </body>
