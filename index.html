@@ -848,7 +848,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
       // success_urlにサイト自身を指定（決済完了後に戻ってくる）
       const url = new URL(STRIPE_PAYMENT_LINK);
       url.searchParams.set('prefilled_email', email);
-      url.searchParams.set('success_url', window.location.origin + window.location.pathname + '?paid=1');
+      url.searchParams.set('success_url', 'https://www.polaris2025official.com/?paid=1');
       setTimeout(() => { window.location.href = url.toString(); }, 1500);
     }, 400);
   });
@@ -877,7 +877,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     msg.style.opacity = '1';
 
     sessionStorage.removeItem('polaris_ticket');
-    window.history.replaceState({}, '', window.location.pathname + '#complete');
+    window.history.replaceState({}, '', 'https://www.polaris2025official.com/#complete');
   })();
 </script>
 </body>
