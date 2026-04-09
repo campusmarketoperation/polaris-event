@@ -864,6 +864,12 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     const form = document.getElementById('reserveForm');
     if (form) form.style.display = 'none';
 
+    // チェックボックスエリアも非表示
+    if (form) {
+      const checkboxDiv = form.nextElementSibling;
+      if (checkboxDiv) checkboxDiv.style.display = 'none';
+    }
+
     // 完了メッセージを表示
     const msg = document.getElementById('successMsg');
     document.getElementById('successTitle').textContent = '購入完了！';
@@ -874,6 +880,10 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
 
     msg.style.display = 'block';
     msg.style.opacity = '1';
+
+    // チケットセクションへ即座にジャンプ
+    document.getElementById('ticket').scrollIntoView({ behavior: 'instant', block: 'start' });
+    msg.scrollIntoView({ behavior: 'instant', block: 'center' });
 
     localStorage.removeItem('polaris_ticket');
     window.history.replaceState({}, '', 'https://www.polaris2025official.com/#complete');
