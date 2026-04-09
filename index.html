@@ -704,7 +704,15 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
         </div>
 
         <button type="submit" class="submit-btn">PURCHASE TICKET →</button>
-      </form>
+
+        <div style="margin-top:1.4rem;display:flex;align-items:flex-start;gap:.75rem;">
+          <input type="checkbox" id="privacyCheck" required
+            style="width:15px;height:15px;margin-top:2px;flex-shrink:0;accent-color:var(--cyan);cursor:pointer;">
+          <label for="privacyCheck"
+            style="font-family:'Syne Mono',monospace;font-size:.68rem;color:rgba(240,238,255,.55);letter-spacing:.04em;line-height:1.7;cursor:pointer;">
+            個人情報をチケット管理・本人確認・イベント運営の目的で利用することに同意します。<span style="color:var(--magenta);"> ＊必須</span>
+          </label>
+        </div>
 
       <div class="success-msg" id="successMsg">
         <div class="success-icon">
@@ -759,10 +767,12 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   <div class="logo-f">/ POLARIS</div>
   <p>2026.08.23 / club Ammona 大阪難波</p>
   <p>© 2026 学生イベント団体 Polaris</p>
-  <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="72021d1e13001b015c1704171c064042404432151f131b1e5c111d1f">[email&#160;protected]</a></p>
+  <p>polaris.event2026@gmail.com</p>
+  <p><a href="/tokushoho.html" style="color:rgba(255,255,255,.3);text-decoration:underline;font-family:'Syne Mono',monospace;font-size:.75rem;letter-spacing:.1em;">特定商取引法に基づく表記</a></p>
+  <p style="color:rgba(255,255,255,.4);font-size:.75rem;font-family:'Syne Mono',monospace;letter-spacing:.1em;">📩 お問い合わせ：polaris.event2026@gmail.com</p>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   const cursor = document.getElementById('cursor');
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px';
@@ -808,7 +818,8 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
     e.preventDefault();
     const name   = document.getElementById('nameInput').value;
     const email  = document.getElementById('emailInput').value;
-    const dob    = document.getElementById('dobInput').value;
+    const dob     = document.getElementById('dobInput').value;
+    const consent = document.getElementById('consentCheck').checked;
     const method = document.querySelector('input[name="payment"]:checked').value;
     const now    = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
     const ticketId = 'POL-' + Date.now().toString(36).toUpperCase();
@@ -820,7 +831,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ticketId, name, email, dob,
+          ticketId, name, email, dob, consent,
           payment: method === 'card' ? 'クレジットカード' : 'PayPay',
           datetime: now,
           status: '未入場'
