@@ -864,7 +864,6 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
 
       const url = new URL(STRIPE_PAYMENT_LINK);
       url.searchParams.set('prefilled_email', email);
-      url.searchParams.set('success_url', 'https://www.polaris2025official.com/?paid=1');
       setTimeout(() => { window.location.href = url.toString(); }, 800);
     }, 300);
   });
