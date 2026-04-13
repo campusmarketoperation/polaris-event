@@ -685,7 +685,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
               </span>
               <span class="method-text">
                 <span class="method-name">クレジットカード</span>
-                <span class="method-brands">VISA / MC / AMEX</span>
+                <span class="method-brands">VISA / MC / AMEX / Apple Pay / Google Pay</span>
               </span>
             </span>
           </label>
@@ -701,9 +701,30 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
               </span>
             </span>
           </label>
+          <label class="method-option">
+            <input type="radio" name="payment" value="konbini">
+            <span class="method-box">
+              <span class="method-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </span>
+              <span class="method-text">
+                <span class="method-name">コンビニ払い</span>
+                <span class="method-brands">セブン / ローソン 他</span>
+              </span>
+            </span>
+          </label>
         </div>
 
         <button type="submit" class="submit-btn">PURCHASE TICKET →</button>
+
+        <div style="margin-top:1.4rem;display:flex;align-items:flex-start;gap:.75rem;">
+          <input type="checkbox" id="privacyCheck" required
+            style="width:15px;height:15px;margin-top:2px;flex-shrink:0;accent-color:var(--cyan);cursor:pointer;">
+          <label for="privacyCheck"
+            style="font-family:'Syne Mono',monospace;font-size:.68rem;color:rgba(240,238,255,.55);letter-spacing:.04em;line-height:1.7;cursor:pointer;">
+            個人情報をチケット管理・本人確認・イベント運営の目的で利用することに同意します。<span style="color:var(--magenta);"> ＊必須</span>
+          </label>
+        </div>
       </form>
 
       <div class="success-msg" id="successMsg">
@@ -759,10 +780,12 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
   <div class="logo-f">/ POLARIS</div>
   <p>2026.08.23 / club Ammona 大阪難波</p>
   <p>© 2026 学生イベント団体 Polaris</p>
-  <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="72021d1e13001b015c1704171c064042404432151f131b1e5c111d1f">[email&#160;protected]</a></p>
+  <p>polaris.event2026@gmail.com</p>
+  <p><a href="/tokushoho.html" style="color:rgba(255,255,255,.3);text-decoration:underline;font-family:'Syne Mono',monospace;font-size:.75rem;letter-spacing:.1em;">特定商取引法に基づく表記</a></p>
+  <p style="color:rgba(255,255,255,.4);font-size:.75rem;font-family:'Syne Mono',monospace;letter-spacing:.1em;">📩 お問い合わせ：polaris.event2026@gmail.com</p>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   const cursor = document.getElementById('cursor');
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px';
@@ -821,7 +844,7 @@ footer p{ font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:.1em; fon
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ticketId, name, email, dob,
-          payment: method === 'card' ? 'クレジットカード' : 'PayPay',
+          payment: {card:'クレジットカード',paypay:'PayPay',konbini:'コンビニ払い'}[method] || method,
           datetime: now,
           status: '未入場'
         })
